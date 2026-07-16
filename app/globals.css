@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-ink-900 text-mist-100 antialiased;
+  background-image:
+    radial-gradient(1200px 600px at 80% -10%, rgba(95, 41, 234, 0.14), transparent 60%),
+    radial-gradient(1000px 500px at 10% 0%, rgba(45, 156, 255, 0.10), transparent 55%);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: rgba(45, 156, 255, 0.35);
+}
+
+/* Slim scrollbars that match the dark theme */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #1b2c50 transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #1b2c50;
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@layer components {
+  .panel {
+    @apply rounded-2xl border border-ink-600/50 bg-ink-850/80 shadow-card backdrop-blur;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-ink-600/60 bg-ink-800/70 px-3 py-1 text-xs text-mist-300;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-spark px-5 py-2.5 font-semibold text-ink-950 shadow-glow transition hover:bg-spark-soft focus:outline-none focus:ring-2 focus:ring-spark/60;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-ink-600/70 px-5 py-2.5 font-medium text-mist-200 transition hover:border-spark/50 hover:text-white;
+  }
+}

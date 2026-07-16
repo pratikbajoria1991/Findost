@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 44" width="180" height="44" role="img" aria-label="Findost wordmark on dark">
+  <rect x="0" y="4" width="36" height="36" rx="10" fill="#7C4FF0"></rect>
+  <text x="18" y="28" text-anchor="middle" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="20" font-weight="800" fill="#FFFFFF">F</text>
+  <text x="48" y="30" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="24" font-weight="700" fill="#FFFFFF">find<tspan fill="#7C4FF0">ost</tspan></text>
+</svg>
