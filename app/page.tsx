@@ -12,8 +12,8 @@ const TELEGRAM_URL = "https://t.me/Findost_bot";
 
 const NAV_LINKS = [
   { label: "Wealth", href: "/concierge?view=portfolio" },
+  { label: "Intelligence", href: "/concierge?view=intelligence" },
   { label: "Calculators", href: "/concierge?view=goals" },
-  { label: "Goals", href: "/concierge?view=goals" },
   { label: "Insights", href: "/concierge?view=markets" },
   { label: "Blog", href: "/blog" },
   { label: "About", href: "#about" },
@@ -40,6 +40,11 @@ const features = [
     icon: "🎯",
     title: "Goal-Based Planning",
     body: "Retirement, home, education — inflation-adjusted targets with the exact monthly SIP needed, and step-up strategies that get you there sooner.",
+  },
+  {
+    icon: "🛡️",
+    title: "Insurance & Wealth Intelligence",
+    body: "Enter your income, family and goals — get the exact term + health cover, asset allocation and product mix you need. Needs-analysis like a real advisor, in seconds.",
   },
   {
     icon: "🧾",
