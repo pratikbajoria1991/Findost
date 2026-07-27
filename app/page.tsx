@@ -4,7 +4,10 @@ import PhoneMockup from "@/components/PhoneMockup";
 import PaisaGuruLauncher from "@/components/PaisaGuruLauncher";
 import SessionChip from "@/components/SessionChip";
 import LeadForm from "@/components/LeadForm";
+import JsonLd from "@/components/JsonLd";
 import { authConfigured } from "@/lib/auth";
+import { getFaqItems } from "@/lib/faq";
+import { faqPageSchema } from "@/lib/seo";
 
 const WHATSAPP_URL =
   "https://wa.me/916205247092?text=Hi%20Findost%2C%20I%20want%20to%20start%20planning%20my%20wealth";
@@ -14,7 +17,7 @@ const NAV_LINKS = [
   { label: "Wealth", href: "/concierge?view=portfolio" },
   { label: "Intelligence", href: "/concierge?view=intelligence" },
   { label: "Calculators", href: "/concierge?view=goals" },
-  { label: "Insights", href: "/concierge?view=markets" },
+  { label: "FAQ", href: "/faq" },
   { label: "Blog", href: "/blog" },
   { label: "About", href: "#about" },
 ];
@@ -64,8 +67,10 @@ const features = [
 ];
 
 export default function LandingPage() {
+  const faqs = getFaqItems().slice(0, 8);
   return (
     <main className="mx-auto max-w-7xl px-6">
+      <JsonLd data={faqPageSchema(faqs.map(({ q, a }) => ({ q, a })))} />
       {/* Nav */}
       <nav className="flex items-center justify-between gap-6 py-6">
         <Link href="/" className="flex items-center gap-3">
@@ -201,6 +206,26 @@ export default function LandingPage() {
         >
           Start planning now → WhatsApp
         </a>
+      </section>
+
+      {/* FAQ — answer-first content for search + answer engines */}
+      <section className="mb-20">
+        <div className="mb-6 flex items-end justify-between">
+          <h2 className="text-3xl font-bold text-white">
+            Common money questions, <span className="font-serif italic text-spark">answered</span>
+          </h2>
+          <Link href="/faq" className="hidden text-sm text-spark-soft transition hover:text-white sm:block">
+            All FAQs →
+          </Link>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          {faqs.map((f) => (
+            <div key={f.slug} className="panel p-6">
+              <h3 className="font-semibold text-white">{f.q}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-mist-300">{f.a}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Footer / compliance */}

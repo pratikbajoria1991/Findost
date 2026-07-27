@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Mono, Fraunces } from "next/font/google";
 import Providers from "@/components/Providers";
+import JsonLd from "@/components/JsonLd";
+import { organizationSchema, websiteSchema, SITE_URL, SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION } from "@/lib/seo";
 import "./globals.css";
 
 const plex = IBM_Plex_Sans({
@@ -23,16 +25,50 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://wealthy.findost.io"),
-  title: "Findost — Your AI-Powered Wealth Companion",
-  description:
-    "Intelligent Wealth. Real Freedom. A 24×7 personal finance concierge for Indian investors — portfolio insight, goal planning, tax intelligence.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Findost — AI Wealth Companion for India | PaisaGuru",
+    template: "%s | Findost",
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: [
+    "AI financial advisor India",
+    "PaisaGuru",
+    "mutual fund distributor",
+    "term insurance calculator India",
+    "health insurance advisor",
+    "SIP calculator",
+    "tax planning India",
+    "NISM research analyst",
+    "wealth management India",
+    "personal finance assistant Hindi",
+  ],
+  authors: [{ name: "Pratik Bajoria" }],
+  creator: "Pratik Bajoria",
+  publisher: SITE_NAME,
+  alternates: { canonical: SITE_URL },
+  category: "finance",
   icons: { icon: "/findost-mark.svg" },
   openGraph: {
-    title: "Findost — Intelligent Wealth. Real Freedom.",
-    description:
-      "Your 24×7 AI wealth concierge: portfolio insight, goal planning and tax intelligence for Indian investors.",
+    type: "website",
+    locale: "en_IN",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: `Findost — ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
+    images: [{ url: "/findost-brand-logo.png", width: 1200, height: 630, alt: "Findost — AI Wealth Companion" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Findost — ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
     images: ["/findost-brand-logo.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
   },
 };
 
@@ -42,6 +78,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${plex.variable} ${plexMono.variable} ${fraunces.variable}`}>
       <body className="font-sans">
+        <JsonLd data={[organizationSchema(), websiteSchema()]} />
         <Providers>{children}</Providers>
       </body>
     </html>

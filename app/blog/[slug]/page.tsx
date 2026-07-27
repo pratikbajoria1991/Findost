@@ -4,25 +4,47 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getPost, getPosts } from "@/lib/blog";
 import { Markdown } from "@/components/Markdown";
+import JsonLd from "@/components/JsonLd";
+import { articleSchema, breadcrumbSchema, SITE_URL } from "@/lib/seo";
 
 export function generateStaticParams() {
   return getPosts().map((p) => ({ slug: p.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const post = getPost(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const post = getPost(slug);
+  if (!post) return { title: "Findost Blog" };
   return {
-    title: post ? `${post.title} — Findost Blog` : "Findost Blog",
-    description: post?.description,
+    title: post.title,
+    description: post.description,
+    alternates: { canonical: `${SITE_URL}/blog/${post.slug}` },
+    openGraph: {
+      type: "article",
+      title: post.title,
+      description: post.description,
+      url: `${SITE_URL}/blog/${post.slug}`,
+      publishedTime: post.date,
+      authors: ["Pratik Bajoria"],
+    },
   };
 }
 
-export default function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = getPost(params.slug);
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const post = getPost(slug);
   if (!post) notFound();
 
   return (
     <main className="mx-auto max-w-3xl px-6 pb-20">
+      <JsonLd data={articleSchema(post)} />
+      <JsonLd
+        data={breadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "Blog", path: "/blog" },
+          { name: post.title, path: `/blog/${post.slug}` },
+        ])}
+      />
       <nav className="flex items-center justify-between py-6">
         <Link href="/" className="flex items-center gap-3">
           <Image src="/findost-logo-mark.png" alt="Findost" width={36} height={36} className="rounded-xl" />
