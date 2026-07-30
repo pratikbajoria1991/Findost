@@ -1,6 +1,6 @@
 /**
- * Airtable CRM — every lead (Google sign-in, callback form, WhatsApp click)
- * lands as a row in your Airtable base.
+ * Airtable CRM — every lead (Google sign-in, callback form, Wealth Check
+ * intake, WhatsApp click) lands as a row in your Airtable base.
  *
  * Env vars: AIRTABLE_API_KEY (personal access token with data.records:write),
  * AIRTABLE_BASE_ID (appXXXX), AIRTABLE_TABLE (default "Leads").
@@ -11,8 +11,13 @@ export interface Lead {
   name?: string;
   email?: string;
   phone?: string;
-  source: string; // "google-signin" | "callback-form" | ...
+  source: string; // "google-signin" | "callback-form" | "wealth-check" | ...
   message?: string;
+  // Optional Wealth Check intake fields (from the "Start a wealth check" form)
+  city?: string;
+  clientType?: string;
+  serviceNeed?: string;
+  mandate?: string;
 }
 
 export async function captureLead(lead: Lead): Promise<boolean> {
@@ -43,6 +48,10 @@ export async function captureLead(lead: Lead): Promise<boolean> {
                 Phone: lead.phone ?? "",
                 Source: lead.source,
                 Message: lead.message ?? "",
+                City: lead.city ?? "",
+                "Client Type": lead.clientType ?? "",
+                "Service Need": lead.serviceNeed ?? "",
+                Mandate: lead.mandate ?? "",
                 "Captured At": new Date().toISOString(),
               },
             },

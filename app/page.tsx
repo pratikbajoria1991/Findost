@@ -14,12 +14,13 @@ const WHATSAPP_URL =
 const TELEGRAM_URL = "https://t.me/Findost_bot";
 
 const NAV_LINKS = [
-  { label: "Wealth", href: "/concierge?view=portfolio" },
+  { label: "Wealth Desk", href: "/concierge?view=portfolio" },
+  { label: "Calculators", href: "/concierge?view=calculators" },
   { label: "Intelligence", href: "/concierge?view=intelligence" },
-  { label: "Calculators", href: "/concierge?view=goals" },
+  { label: "PaisaGuru", href: "/concierge" },
+  { label: "Compliance", href: "/compliance" },
   { label: "FAQ", href: "/faq" },
   { label: "Blog", href: "/blog" },
-  { label: "About", href: "#about" },
 ];
 
 const STATS = [
@@ -40,9 +41,9 @@ const features = [
     body: "Net worth, asset allocation and P&L across mutual funds, equity, FDs, gold and EPF/PPF — in clean Indian rupee terms, lakh and crore.",
   },
   {
-    icon: "🎯",
-    title: "Goal-Based Planning",
-    body: "Retirement, home, education — inflation-adjusted targets with the exact monthly SIP needed, and step-up strategies that get you there sooner.",
+    icon: "🧮",
+    title: "9 Wealth Desk Calculators",
+    body: "SIP, Lumpsum, FD, EMI, Income Tax, Retirement, Goal, PPF and NPS — the full toolkit, free, with instant results as you move the sliders.",
   },
   {
     icon: "🛡️",
@@ -242,9 +243,20 @@ export default function LandingPage() {
           services, where offered, are provided in partnership with Wealthy.in under
           applicable AMFI registration and NISM certifications.
         </p>
-        <p className="mt-4">
-          © {new Date().getFullYear()} Findost · wealthy.findost.io · Your Wealth.
-          Intelligent. Personal. Always.
+        <p className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1">
+          <span>
+            © {new Date().getFullYear()} Findost · wealthy.findost.io · Your Wealth. Intelligent.
+            Personal. Always.
+          </span>
+          <Link href="/compliance" className="text-spark-soft hover:underline">
+            Compliance
+          </Link>
+          <Link href="/faq" className="text-spark-soft hover:underline">
+            FAQ
+          </Link>
+          <Link href="/blog" className="text-spark-soft hover:underline">
+            Blog
+          </Link>
         </p>
       </footer>
 

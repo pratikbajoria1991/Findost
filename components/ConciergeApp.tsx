@@ -8,13 +8,15 @@ import PortfolioView from "./PortfolioView";
 import GoalsView from "./GoalsView";
 import MarketsView from "./MarketsView";
 import IntelligenceView from "./IntelligenceView";
+import CalculatorSuite from "./CalculatorSuite";
 import RightRail from "./RightRail";
 
-type ViewKey = "concierge" | "portfolio" | "goals" | "markets" | "intelligence";
+type ViewKey = "concierge" | "portfolio" | "goals" | "markets" | "intelligence" | "calculators";
 
 const NAV: { key: ViewKey; label: string; icon: string }[] = [
   { key: "concierge", label: "Concierge", icon: "🪶" },
   { key: "intelligence", label: "Intelligence", icon: "🛡️" },
+  { key: "calculators", label: "Calculators", icon: "🧮" },
   { key: "portfolio", label: "Portfolio", icon: "📊" },
   { key: "goals", label: "Goals", icon: "🎯" },
   { key: "markets", label: "Markets", icon: "📈" },
@@ -30,7 +32,8 @@ export default function ConciergeApp() {
   // Landing-page nav deep links: /concierge?view=portfolio|goals|markets
   useEffect(() => {
     const v = new URLSearchParams(window.location.search).get("view");
-    if (v === "portfolio" || v === "goals" || v === "markets" || v === "intelligence") setView(v);
+    if (v === "portfolio" || v === "goals" || v === "markets" || v === "intelligence" || v === "calculators")
+      setView(v);
   }, []);
 
   return (
@@ -96,6 +99,7 @@ export default function ConciergeApp() {
       <main className="flex min-w-0 flex-1 flex-col">
         {view === "concierge" && <Chat />}
         {view === "intelligence" && <IntelligenceView />}
+        {view === "calculators" && <CalculatorSuite />}
         {view === "portfolio" && <PortfolioView />}
         {view === "goals" && <GoalsView />}
         {view === "markets" && <MarketsView />}

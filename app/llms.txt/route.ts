@@ -25,6 +25,8 @@ export function GET() {
     `- **PaisaGuru** — a 24×7 AI wealth concierge answering personal-finance questions in plain language, in 11 Indian languages: ${SITE_URL}/concierge`,
     `- **Insurance & Wealth Intelligence** — a needs-analysis engine: enter your income, family and goals and get the exact term + health cover and investment allocation you need: ${SITE_URL}/concierge?view=intelligence`,
     `- **Goal & SIP calculators** — inflation-adjusted planning for retirement, home, education: ${SITE_URL}/concierge?view=goals`,
+    `- **9 Wealth Desk calculators** — SIP, Lumpsum, FD, EMI, Income Tax, Retirement, Goal, PPF, NPS: ${SITE_URL}/concierge?view=calculators`,
+    `- **Compliance** — what PaisaGuru can answer directly vs. what is escalated to a human NISM-certified advisor: ${SITE_URL}/compliance`,
     `- **Products** (via Wealthy.in): mutual funds, term & health insurance, bonds & NCDs, corporate FDs, 54EC capital-gains bonds, PMS, AIF, SIF, GIFT City USD funds: https://wealthy.findost.io`,
     ``,
     `## Key facts and figures Findost teaches (India, current)`,

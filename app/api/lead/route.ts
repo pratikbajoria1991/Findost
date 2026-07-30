@@ -2,7 +2,10 @@ import { captureLead } from "@/lib/airtable";
 
 export const runtime = "nodejs";
 
-/** Lead-capture endpoint → Airtable CRM. */
+const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
+
+/** Lead-capture endpoint → Airtable CRM. Handles both the simple callback
+ *  form and the richer Wealth Check intake (source: "wealth-check"). */
 export async function POST(req: Request) {
   let body: Record<string, unknown>;
   try {
@@ -16,10 +19,15 @@ export async function POST(req: Request) {
     return Response.json({ ok: true });
   }
 
-  const name = typeof body.name === "string" ? body.name.trim().slice(0, 120) : "";
-  const phone = typeof body.phone === "string" ? body.phone.trim().slice(0, 20) : "";
-  const email = typeof body.email === "string" ? body.email.trim().slice(0, 160) : "";
-  const message = typeof body.message === "string" ? body.message.trim().slice(0, 500) : "";
+  const name = str(body.name, 120);
+  const phone = str(body.phone, 20);
+  const email = str(body.email, 160);
+  const message = str(body.message, 500);
+  const city = str(body.city, 80);
+  const clientType = str(body.clientType, 60);
+  const serviceNeed = str(body.serviceNeed, 80);
+  const mandate = str(body.mandate, 800);
+  const source = str(body.source, 40) || "callback-form";
 
   if (!name || (!phone && !email)) {
     return Response.json(
@@ -28,6 +36,6 @@ export async function POST(req: Request) {
     );
   }
 
-  await captureLead({ name, phone, email, message, source: "callback-form" });
+  await captureLead({ name, phone, email, message, city, clientType, serviceNeed, mandate, source });
   return Response.json({ ok: true });
 }
