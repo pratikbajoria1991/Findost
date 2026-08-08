@@ -1,4 +1,4 @@
-name: Publish daily Findost learning note
+name: Publish daily Findost research brief
 
 on:
   schedule:
@@ -11,18 +11,29 @@ permissions:
 
 jobs:
   publish:
-    name: Publish daily educational post
+    name: Publish daily cited educational post
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Create the day's post from the training library
+      - name: Create a cited research brief
         shell: python
         run: |
           from datetime import datetime
           from pathlib import Path
+          from urllib.request import Request, urlopen
+          from xml.etree import ElementTree as ET
           from zoneinfo import ZoneInfo
+          import html
           import re
+
+          def fetch(url: str) -> bytes:
+              request = Request(url, headers={"User-Agent": "FindostResearchBot/1.0 (+https://findost.io)"})
+              with urlopen(request, timeout=30) as response:
+                  return response.read()
+
+          def clean(value: str) -> str:
+              return re.sub(r"\s+", " ", html.unescape(value or "")).strip()
 
           root = Path(".")
           today = datetime.now(ZoneInfo("Asia/Kolkata")).date().isoformat()
@@ -32,12 +43,30 @@ jobs:
               print(f"{destination} already exists; nothing to publish.")
               raise SystemExit(0)
 
+          # Official, public first-party regulatory source. No scraping of search results,
+          # paywalled material, or social platforms is used in automatic publication.
+          try:
+              feed = ET.fromstring(fetch("https://www.sebi.gov.in/sebirss.xml"))
+          except Exception as error:
+              raise SystemExit(f"SEBI RSS retrieval failed; no post published: {error}")
+
+          items = []
+          for item in feed.findall(".//item")[:3]:
+              title = clean(item.findtext("title"))
+              link = clean(item.findtext("link"))
+              published = clean(item.findtext("pubDate"))
+              if title and link:
+                  items.append((title, link, published))
+
+          if not items:
+              raise SystemExit("SEBI RSS had no usable items; no post published.")
+
           sources = sorted(
-              p for p in (root / "content" / "training").glob("*.md")
-              if p.name.lower() != "readme.md"
+              path for path in (root / "content" / "training").glob("*.md")
+              if path.name.lower() != "readme.md"
           )
           if not sources:
-              raise SystemExit("No approved training-library source files found.")
+              raise SystemExit("No Findost training-library source files found.")
 
           source = sources[datetime.now(ZoneInfo("Asia/Kolkata")).timetuple().tm_yday % len(sources)]
           raw = source.read_text(encoding="utf-8")
@@ -50,8 +79,13 @@ jobs:
           topic = topic_match.group(1).strip() if topic_match else "Personal finance learning note"
           english_body = re.split(r"\n\[(?:hi|bn|mr|te|ta|gu|ur|kn|or|ml)\]\s*\n", body)[0].strip()
 
+          citations = "\n".join(
+              f"- [{title}]({link})" + (f" — {published}" if published else "")
+              for title, link, published in items
+          )
+
           destination.write_text(
-              f"""---\ntitle: "Daily Finance Learning: {topic}"\ndate: {today}\ndescription: "An educational Findost learning note about {topic}."\nauthor: "Findost Editorial Desk"\n---\n\n{english_body}\n\n---\n\n*Published automatically from the Findost training library. This is educational information, not personalised investment, tax, or legal advice. Review your circumstances with a qualified professional before acting.*\n""",
+              f"""---\ntitle: "India Finance Research Brief: {topic}"\ndate: {today}\ndescription: "A cited educational research brief from Findost, with official regulatory-source links and an explainer on {topic}."\nauthor: "Findost Editorial Desk"\n---\n\n## Official regulatory updates to review\n\n{citations}\n\nFindost links to the primary source so readers can verify the underlying announcement before forming a view.\n\n## Educational explainer: {topic}\n\n{english_body}\n\n## Sources and scope\n\n- [SEBI RSS feed](https://www.sebi.gov.in/sebirss.xml)\n- [RBI RSS catalogue](https://www.rbi.org.in/Scripts/rss.aspx)\n\n*This automatically published brief combines public, first-party regulatory links with Findost educational material. It is not personalised investment, tax, or legal advice, and it does not recommend securities or products. Verify source updates and consult a qualified professional before acting.*\n""",
               encoding="utf-8",
           )
           print(f"Created {destination}")
@@ -65,5 +99,5 @@ jobs:
           git config user.name "findost-content-bot"
           git config user.email "actions@github.com"
           git add content/blog/daily-*.md
-          git commit -m "content: publish daily learning note"
+          git commit -m "content: publish daily cited research brief"
           git push
