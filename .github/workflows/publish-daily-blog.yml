@@ -1,0 +1,69 @@
+name: Publish daily Findost learning note
+
+on:
+  schedule:
+    # 06:00 Asia/Kolkata (00:30 UTC) every day
+    - cron: "30 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: Publish daily educational post
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create the day's post from the training library
+        shell: python
+        run: |
+          from datetime import datetime
+          from pathlib import Path
+          from zoneinfo import ZoneInfo
+          import re
+
+          root = Path(".")
+          today = datetime.now(ZoneInfo("Asia/Kolkata")).date().isoformat()
+          destination = root / "content" / "blog" / f"daily-{today}.md"
+
+          if destination.exists():
+              print(f"{destination} already exists; nothing to publish.")
+              raise SystemExit(0)
+
+          sources = sorted(
+              p for p in (root / "content" / "training").glob("*.md")
+              if p.name.lower() != "readme.md"
+          )
+          if not sources:
+              raise SystemExit("No approved training-library source files found.")
+
+          source = sources[datetime.now(ZoneInfo("Asia/Kolkata")).timetuple().tm_yday % len(sources)]
+          raw = source.read_text(encoding="utf-8")
+          match = re.match(r"^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$", raw)
+          if not match:
+              raise SystemExit(f"{source} is missing front matter.")
+
+          frontmatter, body = match.groups()
+          topic_match = re.search(r"^topic:\s*(.+)$", frontmatter, re.MULTILINE)
+          topic = topic_match.group(1).strip() if topic_match else "Personal finance learning note"
+          english_body = re.split(r"\n\[(?:hi|bn|mr|te|ta|gu|ur|kn|or|ml)\]\s*\n", body)[0].strip()
+
+          destination.write_text(
+              f"""---\ntitle: "Daily Finance Learning: {topic}"\ndate: {today}\ndescription: "An educational Findost learning note about {topic}."\nauthor: "Findost Editorial Desk"\n---\n\n{english_body}\n\n---\n\n*Published automatically from the Findost training library. This is educational information, not personalised investment, tax, or legal advice. Review your circumstances with a qualified professional before acting.*\n""",
+              encoding="utf-8",
+          )
+          print(f"Created {destination}")
+
+      - name: Commit and push when a new post was created
+        run: |
+          if git diff --quiet; then
+            echo "No new post to commit."
+            exit 0
+          fi
+          git config user.name "findost-content-bot"
+          git config user.email "actions@github.com"
+          git add content/blog/daily-*.md
+          git commit -m "content: publish daily learning note"
+          git push
