@@ -97,6 +97,7 @@ export default function ConciergeApp() {
 
       {/* Main view */}
       <main className="flex min-w-0 flex-1 flex-col">
+        <h1 className="sr-only">PaisaGuru AI Wealth Desk for Indian Investors</h1>
         {view === "concierge" && <Chat />}
         {view === "intelligence" && <IntelligenceView />}
         {view === "calculators" && <CalculatorSuite />}
