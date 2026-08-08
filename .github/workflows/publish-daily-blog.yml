@@ -35,6 +35,19 @@ jobs:
           def clean(value: str) -> str:
               return re.sub(r"\s+", " ", html.unescape(value or "")).strip()
 
+          def feed_items(url: str, label: str) -> list[tuple[str, str, str, str]]:
+              feed = ET.fromstring(fetch(url))
+              result = []
+              for item in feed.findall(".//item")[:3]:
+                  title = clean(item.findtext("title"))
+                  link = clean(item.findtext("link"))
+                  published = clean(item.findtext("pubDate"))
+                  if title and link:
+                      result.append((label, title, link, published))
+              if not result:
+                  raise ValueError(f"{label} RSS had no usable items")
+              return result
+
           root = Path(".")
           today = datetime.now(ZoneInfo("Asia/Kolkata")).date().isoformat()
           destination = root / "content" / "blog" / f"daily-{today}.md"
@@ -43,23 +56,15 @@ jobs:
               print(f"{destination} already exists; nothing to publish.")
               raise SystemExit(0)
 
-          # Official, public first-party regulatory source. No scraping of search results,
-          # paywalled material, or social platforms is used in automatic publication.
+          # Primary, public regulatory sources only. The workflow does not scrape
+          # search-result pages, use paywalled material, or publish social-media claims.
           try:
-              feed = ET.fromstring(fetch("https://www.sebi.gov.in/sebirss.xml"))
+              updates = (
+                  feed_items("https://www.sebi.gov.in/sebirss.xml", "SEBI")
+                  + feed_items("https://rbi.org.in/pressreleases_rss.xml", "RBI")
+              )
           except Exception as error:
-              raise SystemExit(f"SEBI RSS retrieval failed; no post published: {error}")
-
-          items = []
-          for item in feed.findall(".//item")[:3]:
-              title = clean(item.findtext("title"))
-              link = clean(item.findtext("link"))
-              published = clean(item.findtext("pubDate"))
-              if title and link:
-                  items.append((title, link, published))
-
-          if not items:
-              raise SystemExit("SEBI RSS had no usable items; no post published.")
+              raise SystemExit(f"Official-source retrieval failed; no post published: {error}")
 
           sources = sorted(
               path for path in (root / "content" / "training").glob("*.md")
@@ -80,12 +85,12 @@ jobs:
           english_body = re.split(r"\n\[(?:hi|bn|mr|te|ta|gu|ur|kn|or|ml)\]\s*\n", body)[0].strip()
 
           citations = "\n".join(
-              f"- [{title}]({link})" + (f" — {published}" if published else "")
-              for title, link, published in items
+              f"- **{publisher}:** [{title}]({link})" + (f" — {published}" if published else "")
+              for publisher, title, link, published in updates
           )
 
           destination.write_text(
-              f"""---\ntitle: "India Finance Research Brief: {topic}"\ndate: {today}\ndescription: "A cited educational research brief from Findost, with official regulatory-source links and an explainer on {topic}."\nauthor: "Findost Editorial Desk"\n---\n\n## Official regulatory updates to review\n\n{citations}\n\nFindost links to the primary source so readers can verify the underlying announcement before forming a view.\n\n## Educational explainer: {topic}\n\n{english_body}\n\n## Sources and scope\n\n- [SEBI RSS feed](https://www.sebi.gov.in/sebirss.xml)\n- [RBI RSS catalogue](https://www.rbi.org.in/Scripts/rss.aspx)\n\n*This automatically published brief combines public, first-party regulatory links with Findost educational material. It is not personalised investment, tax, or legal advice, and it does not recommend securities or products. Verify source updates and consult a qualified professional before acting.*\n""",
+              f"""---\ntitle: "India Finance Research Brief: {topic}"\ndate: {today}\ndescription: "A cited Findost research brief using official RBI and SEBI updates, with an educational explainer on {topic}."\nauthor: "Findost Editorial Desk"\n---\n\n## Official updates to review\n\n{citations}\n\nFindost links to primary sources so readers can verify the underlying announcement before forming a view.\n\n## Educational explainer: {topic}\n\n{english_body}\n\n## Sources and scope\n\n- [SEBI RSS feed](https://www.sebi.gov.in/sebirss.xml)\n- [RBI press-release RSS feed](https://rbi.org.in/pressreleases_rss.xml)\n\n*This automatically published brief combines public first-party regulatory links with Findost educational material. It is not personalised investment, tax, or legal advice, and it does not recommend securities or products. Verify source updates and consult a qualified professional before acting.*\n""",
               encoding="utf-8",
           )
           print(f"Created {destination}")
